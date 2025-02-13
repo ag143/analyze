@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Stock Analysis Dashboard</h1>
+    <input type="text" id="stockSymbol" value="RELIANCE">
+    <button onclick="fetchStockData()">Get Data</button>
+    <h2 id="price">Stock Price: --</h2>
+    <div id="fundamentals"></div>
+    <canvas id="stockChart"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
