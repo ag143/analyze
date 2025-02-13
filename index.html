@@ -1,27 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { width: 80%; margin: auto; }
-        .data-box { border: 1px solid #ccc; padding: 10px; margin: 10px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Stock Analysis Dashboard</h1>
-        <input type="text" id="stockSymbol" value="SUZLON">
-        <button onclick="fetchStockData()">Get Data</button>
+async function fetchStockData() {
+    let symbol = document.getElementById("stockSymbol").value.toUpperCase();
+    let proxy = "https://corsproxy.io/?";
 
-        <h2 id="price">Stock Price: --</h2>
-        <div class="data-box" id="fundamentals"></div>
-        <div class="data-box" id="metaInfo"></div>
-        <div class="data-box" id="tradeInfo"></div>
-    </div>
+    let urls = {
+        priceData: proxy + encodeURIComponent(`https://www.nseindia.com/api/quote-equity?symbol=${symbol}`),
+        metaData: proxy + encodeURIComponent(`https://www.nseindia.com/api/equity-meta-info?symbol=${symbol}`),
+        tradeData: proxy + encodeURIComponent(`https://www.nseindia.com/api/quote-equity?symbol=${symbol}&section=trade_info`)
+    };
 
-    <script src="script.js"></script>
-</body>
-</html>
+    try {
+        let responses = await Promise.all([
+            fetch(urls.priceData, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } }).then(res => res.json()),
+            fetch(urls.metaData, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } }).then(res => res.json()),
+            fetch(urls.tradeData, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } }).then(res => res.json())
+        ]);
+
+        let [priceData, metaData, tradeData] = responses;
+
+        document.getElementById("price").innerText = `Stock Price: ₹${priceData.priceInfo.lastPrice}`;
+        
+        document.getElementById("fundamentals").innerHTML = `
+            <h3>Fundamental Data</h3>
+            <p>Market Cap: ${priceData.marketDeptOrderBook.totalBuyQuantity}</p>
+            <p>PE Ratio: ${priceData.priceInfo.pE || "N/A"}</p>
+            <p>Book Value: ${priceData.metadata.bookValue || "N/A"}</p>
+            <p>52-Week High: ${priceData.priceInfo.weekHigh52}</p>
+            <p>52-Week Low: ${priceData.priceInfo.weekLow52}</p>
+        `;
+
+        document.getElementById("metaInfo").innerHTML = `
+            <h3>Meta Data</h3>
+            <p>Company Name: ${metaData.info.symbol || "N/A"}</p>
+            <p>Industry: ${metaData.info.industry || "N/A"}</p>
+            <p>Face Value: ${metaData.info.faceValue || "N/A"}</p>
+            <p>ISIN Code: ${metaData.info.isin || "N/A"}</p>
+        `;
+
+        document.getElementById("tradeInfo").innerHTML = `
+            <h3>Trade Info</h3>
+            <p>Open Price: ₹${tradeData.marketDeptOrderBook.open || "N/A"}</p>
+            <p>High Price: ₹${tradeData.marketDeptOrderBook.high || "N/A"}</p>
+            <p>Low Price: ₹${tradeData.marketDeptOrderBook.low || "N/A"}</p>
+            <p>Volume: ${tradeData.marketDeptOrderBook.totalTradedVolume || "N/A"}</p>
+        `;
+
+    } catch (error) {
+        console.error("Error fetching stock data:", error);
+        document.getElementById("price").innerText = "Stock Price: Data not available";
+        document.getElementById("fundamentals").innerHTML = "<p>Error loading fundamentals.</p>";
+        document.getElementById("metaInfo").innerHTML = "<p>Error loading meta data.</p>";
+        document.getElementById("tradeInfo").innerHTML = "<p>Error loading trade info.</p>";
+    }
+}
