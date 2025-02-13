@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { width: 80%; margin: auto; }
+        .data-box { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Stock Analysis Dashboard</h1>
-    <input type="text" id="stockSymbol" value="RELIANCE">
-    <button onclick="fetchStockData()">Get Data</button>
-    <h2 id="price">Stock Price: --</h2>
-    <div id="fundamentals"></div>
+    <div class="container">
+        <h1>Stock Analysis Dashboard</h1>
+        <input type="text" id="stockSymbol" value="SUZLON">
+        <button onclick="fetchStockData()">Get Data</button>
+
+        <h2 id="price">Stock Price: --</h2>
+        <div class="data-box" id="fundamentals"></div>
+        <div class="data-box" id="metaInfo"></div>
+        <div class="data-box" id="tradeInfo"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
